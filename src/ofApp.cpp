@@ -4,10 +4,25 @@
 //--------------------------------------------------------------
 void ofApp::setup(){
 //    shader.load("shader");
+    sound.load("artificial-reality.mp3");
+    sound.play();
+    sound.setLoop(true);
+    gui.setup();
+    gui.add(volume.set("volume", 0.5, 0.0, 1.0));
+    gui.add(decay.set("decay", 0.5, 0.0, 1.0));
+    
+    fft = new float[128];
+    
+    for (int i = 0; i < 128; i++) {
+        fft[i] = 0;
+    }
+    
+    bands = 64;
+    
     shaderFilter.load("shader.frag");
     shaderFilter.allocate(ofGetWidth(), ofGetHeight());
-    buffer.resize(N, 0.0);
-    soundStream.setup(this, 2 , 1, sampleRate, 512, 4);
+//    buffer.resize(N, 0.0);
+//    soundStream.setup(this, 2 , 1, sampleRate, 512, 4);
 }
 
 //--------------------------------------------------------------
@@ -19,8 +34,19 @@ void ofApp::update(){
 //    shaderFilter.setUniform1f("u_mouse.y", ofGetMouseY());
 //    shaderFilter.setUniform1f("u_time", N);
     ofSoundUpdate();
-    shaderFilter.setUniform1f("u_time", playPos);
+    sound.setVolume(volume);
     
+    soundSpectrum = ofSoundGetSpectrum(bands);
+    
+    
+    for (int i = 0; i < bands; i++) {
+        fft[i] *= decay;
+        if (fft[i] < soundSpectrum[i]) {
+            fft[i] = soundSpectrum[i];
+            shaderFilter.setUniform1f("u_time", fft[i] * 100);
+        }
+        
+    }
     
 }
 
@@ -29,8 +55,13 @@ void ofApp::draw(){
 //    shader.begin();
 //    ofDrawRectangle(0,0, ofGetWidth(), ofGetHeight());
 //    shader.end();
-    shaderFilter.render();
-    shaderFilter.draw(0, 0);
+    for (int i = 0; i < bands; i++) {
+        shaderFilter.render();
+        shaderFilter.draw( fft[i] * 150, fft[i] * 50);
+    }
+    
+    gui.draw();
+    
     
     
 //    i = float(x) * N / w;
@@ -66,58 +97,58 @@ void ofApp::draw(){
 //    }
 }
 //--------------------------------------------------------------
-void ofApp::audioReceived(float *input,int bufferSize, int nChannels){
-    
-    //If recording is enabled by the user, then store data received
-    if (recordingEnabled) {
-        for (int i =0; i < bufferSize; i++) {
-            buffer[recPos] = input[i];
-            recPos++;
-            //When the end of buffer is reached, recPos sets to 0, so we record sound in a loop
-            recPos %=N;
-//            shaderFilter.setUniform1f("u_time", recPos);
-        }
-    }
-
-}
+//void ofApp::audioReceived(float *input,int bufferSize, int nChannels){
+//
+//    //If recording is enabled by the user, then store data received
+//    if (recordingEnabled) {
+//        for (int i =0; i < bufferSize; i++) {
+//            buffer[recPos] = input[i];
+//            recPos++;
+//            //When the end of buffer is reached, recPos sets to 0, so we record sound in a loop
+//            recPos %=N;
+////            shaderFilter.setUniform1f("u_time", recPos);
+//        }
+//    }
+//
+//}
 //--------------------------------------------------------------
-void ofApp::audioOut(float *output, int bufferSize, int nChannels){
-    // If playing is enabled by the user, then do output sound
-    if (playingEnabled) {
-        for (int i = 0; i < bufferSize; i++) {
-            output[ 2*i ] = output[ 2*i+1 ]
-            =buffer[playPos];
-            playPos++;
-            //When the end of the buffer is reached, playPos sets to 0, so we hear looped sound
-            playPos %= N;
-        }
-    }
-}
+//void ofApp::audioOut(float *output, int bufferSize, int nChannels){
+//    // If playing is enabled by the user, then do output sound
+//    if (playingEnabled) {
+//        for (int i = 0; i < bufferSize; i++) {
+//            output[ 2*i ] = output[ 2*i+1 ]
+//            =buffer[playPos];
+//            playPos++;
+//            //When the end of the buffer is reached, playPos sets to 0, so we hear looped sound
+//            playPos %= N;
+//        }
+//    }
+//}
 
 //--------------------------------------------------------------
-void ofApp::keyPressed(int key){
-
-    //Enable recording mode
-    if (key == '1') {
-        recordingEnabled = 1;
-        playingEnabled = 0;
-    }
-    
-    // Enable playing mode
-    if (key == '2') {
-        recordingEnabled = 0;
-        playingEnabled = 1;
-    }
-    
-    //Save screen image to the file
-    if (key == 's') {
-        ofImage grab;
-        grab.grabScreen(0, 0, ofGetWidth(), ofGetHeight());
-        grab.save("grab.png");
-    }
-    
-    
-}
+//void ofApp::keyPressed(int key){
+//
+//    //Enable recording mode
+//    if (key == '1') {
+//        recordingEnabled = 1;
+//        playingEnabled = 0;
+//    }
+//    
+//    // Enable playing mode
+//    if (key == '2') {
+//        recordingEnabled = 0;
+//        playingEnabled = 1;
+//    }
+//    
+//    //Save screen image to the file
+//    if (key == 's') {
+//        ofImage grab;
+//        grab.grabScreen(0, 0, ofGetWidth(), ofGetHeight());
+//        grab.save("grab.png");
+//    }
+//    
+//    
+//}
 
 //--------------------------------------------------------------
 void ofApp::keyReleased(int key){

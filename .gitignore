@@ -1,30 +1,29 @@
-###########################
+
+# Created by https://www.gitignore.io/api/openframeworks
+# Edit at https://www.gitignore.io/?templates=openframeworks
+
+### OpenFrameworks ###
 # ignore generated binaries
 # but not the data folder
-###########################
 
-*/bin/*
-!*/bin/data/
+/bin/*
+!/bin/data/
 
-#########
 # general
-#########
 
-*/[Bb]uild/
-*/[Oo]bj/
+[Bb]uild/
+[Oo]bj/
 *.o
-*/[Dd]ebug*/
-*/[Rr]elease*/
+[Dd]ebug*/
+[Rr]elease*/
 *.mode*
 *.app/
 *.pyc
 .svn/
 *.log
 
-########################
 # IDE files which should
 # be ignored
-########################
 
 # XCode
 *.pbxuser
@@ -54,9 +53,7 @@ ipch/
 local.properties
 .externalToolBuilders
 
-##################
 # operating system
-##################
 
 # Linux
 *~
@@ -79,3 +76,5 @@ Desktop.ini
 
 # Android
 .csettings
+
+# End of https://www.gitignore.io/api/openframeworks
