@@ -20,15 +20,3 @@ void main(){
 
     gl_FragColor = vec4(0.05 / color, 1.0);
 }
-
-//  COLORS
-
-// void main() {
-//     vec2 st = gl_FragCoord.xy/u_resolution.xy;
-//     st.x *= u_resolution.x/u_resolution.y;
-
-//     vec3 color = vec3(0.);
-//     color = vec3(u_time * 20.0,u_time * 65.0, abs(sin(u_time)));
-
-//     gl_FragColor = vec4(color,1.0);
-// }
